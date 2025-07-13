@@ -1,1 +1,1 @@
-<h1>Sveltekit Drizzle Lucia Template</h1>
+<h1 class="text-3xl font-extrabold">Sveltekit Drizzle Lucia Template</h1>

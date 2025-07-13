@@ -53,10 +53,6 @@ export async function deleteUserEmailVerificationRequest(userId: string): Promis
 		.where(eq(table.emailVerificationRequest.userId, userId));
 }
 
-export function sendVerificationEmail(email: string, code: string): void {
-	console.log(`To ${email}: Your verification code is ${code}`);
-}
-
 export function setEmailVerificationRequestCookie(
 	event: RequestEvent,
 	request: EmailVerificationRequest

@@ -4,7 +4,6 @@ import {
 	deleteEmailVerificationRequestCookie,
 	deleteUserEmailVerificationRequest,
 	getUserEmailVerificationRequestFromRequest,
-	sendVerificationEmail,
 	sendVerificationEmailBucket,
 	setEmailVerificationRequestCookie
 } from '$lib/server/email/verify-email';
@@ -13,6 +12,7 @@ import { updateUserEmailAndSetEmailAsVerified } from '$lib/server/lucia-auth/use
 import { ExpiringTokenBucket } from '$lib/server/lucia-auth/rate-limit';
 
 import type { Actions, RequestEvent } from './$types';
+import { sendVerificationEmail } from '$lib/server/lucia-auth/email-verification';
 
 export async function load(event: RequestEvent) {
 	if (!event.locals.user) {
