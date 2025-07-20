@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
-import { testDb } from '../src/lib/server/db/test-db';
-import * as tables from '../src/lib/server/db/schema';
+import { testDb } from '../src/server/db/test-db';
+import * as tables from '../src/server/db/schema';
 import { eq } from 'drizzle-orm';
 
 test('home page has expected h1', async ({ page }) => {

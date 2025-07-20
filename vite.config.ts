@@ -2,6 +2,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 export default defineConfig({
 	plugins: [sveltekit(), tailwindcss()],
@@ -30,7 +34,8 @@ export default defineConfig({
 					environment: 'node',
 					include: ['src/**/*.test.ts'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					testTimeout: 30000
+					testTimeout: 30000,
+					env: process.env
 				}
 			}
 		]

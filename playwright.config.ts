@@ -1,4 +1,8 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 export default defineConfig({
 	webServer: {
@@ -6,5 +10,16 @@ export default defineConfig({
 		port: 4173
 	},
 
-	testDir: 'e2e'
+	testDir: 'e2e',
+
+	use: {
+		baseURL: 'http://localhost:4173'
+	},
+
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'] }
+		}
+	]
 });
