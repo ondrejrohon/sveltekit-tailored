@@ -1,5 +1,5 @@
+import { db } from 'sveltekit-kleo';
 import type { RequestHandler } from './$types';
-import { db } from '$lib/server/db';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	try {
