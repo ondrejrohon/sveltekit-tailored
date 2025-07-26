@@ -3,8 +3,8 @@ import { testDb } from '../src/lib/server/db/test-db.js';
 import * as tables from '../src/lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 
-test.describe('auth', () => {
-	test('home page has expected h1', async ({ page }) => {
+test.describe('auth test', () => {
+	test('create user and verify email', async ({ page }) => {
 		console.log(
 			'test db setup - env:',
 			process.env.NODE_ENV,
