@@ -1,4 +1,4 @@
-import { jwtLoginHandler, jwtRefreshHandler } from 'sveltekit-kleo';
+import { jwtLoginHandler, jwtRefreshHandler } from '$lib';
 
 export const POST = jwtLoginHandler;
 

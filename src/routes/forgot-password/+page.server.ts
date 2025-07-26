@@ -1,4 +1,4 @@
-import { forgotPasswordActions } from 'sveltekit-kleo';
+import { forgotPasswordActions } from '$lib';
 import type { Actions } from './$types';
 
 export const actions: Actions = forgotPasswordActions;

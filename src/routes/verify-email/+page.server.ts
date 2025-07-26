@@ -1,4 +1,4 @@
-import { verificationLoadHandler, verificationActions } from 'sveltekit-kleo';
+import { verificationLoadHandler, verificationActions } from '$lib';
 
 export const load = verificationLoadHandler;
 

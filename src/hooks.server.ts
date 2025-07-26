@@ -1,3 +1,3 @@
-import { authHandler } from 'sveltekit-kleo';
+import { authHandler } from '$lib';
 
 export const handle = authHandler;

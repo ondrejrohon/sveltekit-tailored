@@ -1,3 +1,3 @@
-import { googleLoginCallbackHandler } from 'sveltekit-kleo';
+import { googleLoginCallbackHandler } from '$lib';
 
 export const GET = googleLoginCallbackHandler;

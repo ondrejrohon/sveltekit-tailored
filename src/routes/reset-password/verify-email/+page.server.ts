@@ -1,7 +1,4 @@
-import {
-	resetPasswordVerificationActions,
-	resetPasswordVerificationLoadHandler
-} from 'sveltekit-kleo';
+import { resetPasswordVerificationActions, resetPasswordVerificationLoadHandler } from '$lib';
 
 export const load = resetPasswordVerificationLoadHandler;
 

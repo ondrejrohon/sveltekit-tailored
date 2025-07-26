@@ -1,4 +1,4 @@
 import type { RequestHandler } from './$types';
-import { signoutHandler } from 'sveltekit-kleo';
+import { signoutHandler } from '$lib';
 
 export const GET: RequestHandler = signoutHandler;

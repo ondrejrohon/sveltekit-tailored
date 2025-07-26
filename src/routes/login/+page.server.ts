@@ -1,4 +1,4 @@
-import { loginLoadHandler, loginActions } from 'sveltekit-kleo';
+import { loginLoadHandler, loginActions } from '$lib';
 
 export const load = loginLoadHandler;
 
