@@ -1,4 +1,4 @@
-import { db } from '../../../server/db/index';
+import { db } from '$lib/server/db';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ locals }) => {

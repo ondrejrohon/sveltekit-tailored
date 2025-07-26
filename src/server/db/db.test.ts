@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { testDb } from './test-db.js';
+import { testDb } from '$lib/server/db/test-db.js';
 import * as tables from './schema.js';
 import { eq } from 'drizzle-orm';
 
@@ -30,7 +30,5 @@ describe('Database Operations', () => {
 
 		// Clean up
 		await testDb.delete(tables.user).where(eq(tables.user.id, testId));
-
-		console.log('Test completed successfully!');
 	});
 });
