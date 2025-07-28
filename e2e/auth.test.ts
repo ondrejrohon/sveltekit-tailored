@@ -76,7 +76,7 @@ test.describe('auth test', () => {
 
 		// test wrong code first
 		await page.getByTestId('verification-code').fill('111111');
-		await page.getByRole('button', { name: 'Verify Email' }).click();
+		await page.getByRole('button', { name: 'Continue to reset password' }).click();
 		await expect(page.getByText('Incorrect code')).toBeVisible();
 
 		// set verification code in db
@@ -87,7 +87,7 @@ test.describe('auth test', () => {
 
 		await page.getByTestId('verification-code').fill('111111');
 		await Promise.all([
-			page.getByRole('button', { name: 'Verify Email' }).click(),
+			page.getByRole('button', { name: 'Continue to reset password' }).click(),
 			page.waitForURL('/reset-password')
 		]);
 		await expect(page.getByText('Reset your password')).toBeVisible();

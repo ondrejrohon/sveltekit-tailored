@@ -7,6 +7,8 @@ import type { User } from './user.js';
 import * as tables from '../db/schema.js';
 import { db } from '$lib/server/db/index.js';
 import { eq } from 'drizzle-orm';
+import { sendEmail } from '../email/send-email.js';
+import { generateResetEmailTemplate } from '../email/reset-email-template.js';
 
 export async function createPasswordResetSession(
 	token: string,
@@ -109,6 +111,11 @@ export function deletePasswordResetSessionTokenCookie(event: RequestEvent): void
 
 export function sendPasswordResetEmail(email: string, code: string): void {
 	console.log(`To ${email}: Your reset code is ${code}`);
+	sendEmail({
+		to: email,
+		subject: 'Reset your password',
+		html: generateResetEmailTemplate(code)
+	});
 }
 
 export interface PasswordResetSession {
