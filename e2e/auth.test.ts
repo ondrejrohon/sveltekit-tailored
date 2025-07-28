@@ -5,13 +5,6 @@ import { eq } from 'drizzle-orm';
 
 test.describe('auth test', () => {
 	test('create user and verify email', async ({ page }) => {
-		console.log(
-			'test db setup - env:',
-			process.env.NODE_ENV,
-			'dbUrl:',
-			process.env.DATABASE_TEST_URL
-		);
-
 		const email = `testuser${Date.now()}@example.com`;
 
 		// TODO: always wait for hydrated
@@ -106,5 +99,63 @@ test.describe('auth test', () => {
 		await page.getByRole('button', { name: 'Sign in' }).click();
 		await page.waitForURL('/');
 		await expect(page.getByTestId('signout')).toBeVisible();
+	});
+
+	test('create user and test too many login attempts', async ({ page }) => {
+		const email = `testuser${Date.now()}@example.com`;
+
+		// TODO: always wait for hydrated
+		await page.goto('/');
+		// Wait for SvelteKit app to be fully loaded
+		await page.waitForSelector('body[data-sveltekit-hydrated]');
+
+		await expect(page.locator('nav a')).toHaveCount(3);
+
+		await page.getByTestId('signup').click();
+		await page.getByRole('textbox', { name: 'Email' }).click();
+		await page.getByRole('textbox', { name: 'Email' }).fill(email);
+		await page.getByRole('textbox', { name: 'Email' }).press('Tab');
+		await page.getByRole('textbox', { name: 'Password' }).fill('Nbusr123!@');
+		await page.getByRole('button', { name: 'Create account' }).click();
+
+		await Promise.all([
+			page.getByRole('textbox', { name: 'Verification Code' }).click(),
+			page.waitForURL('/verify-email')
+		]);
+
+		// get user from db
+		const [user] = await testDb.select().from(tables.user).where(eq(tables.user.email, email));
+		// update verification code in db to 111111
+		await testDb
+			.update(tables.emailVerificationRequest)
+			.set({ code: '111111' })
+			.where(eq(tables.emailVerificationRequest.userId, user.id));
+
+		await page.getByRole('textbox', { name: 'Verification Code' }).fill('111111');
+		await Promise.all([
+			page.getByRole('button', { name: 'Verify Email' }).click(),
+			page.waitForURL('/')
+		]);
+
+		// verify that user is verified
+		const [user2] = await testDb.select().from(tables.user).where(eq(tables.user.email, email));
+
+		expect(user2.emailVerified).toBe(true);
+
+		// sign out and login back in
+		await page.getByTestId('signout').click();
+		await page.getByTestId('login').click();
+		await page.getByRole('textbox', { name: 'Email' }).fill(email);
+
+		// test too many login attempts
+		for (let i = 0; i < 2; i++) {
+			await page.getByRole('textbox', { name: 'Password' }).fill('123');
+			await page.getByRole('button', { name: 'Sign in' }).click();
+			console.log('test too many login attempts', i);
+			await expect(page.getByText('Invalid password')).toBeVisible();
+		}
+		await page.getByRole('textbox', { name: 'Password' }).fill('123');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+		await expect(page.getByText('Too many requests')).toBeVisible();
 	});
 });
