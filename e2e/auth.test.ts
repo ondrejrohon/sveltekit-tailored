@@ -74,6 +74,11 @@ test.describe('auth test', () => {
 			page.waitForURL('/reset-password/verify-email')
 		]);
 
+		// test wrong code first
+		await page.getByTestId('verification-code').fill('111111');
+		await page.getByRole('button', { name: 'Verify Email' }).click();
+		await expect(page.getByText('Incorrect code')).toBeVisible();
+
 		// set verification code in db
 		await testDb
 			.update(tables.passwordResetSession)
