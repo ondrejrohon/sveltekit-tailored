@@ -7,6 +7,11 @@ config();
 export default defineConfig({
 	testDir: 'e2e',
 
+	// webServer: {
+	// 	command: 'NODE_ENV=test bun run build && NODE_ENV=test bun run preview',
+	// 	port: 4173
+	// },
+
 	use: {
 		baseURL: 'http://localhost:4173'
 	},

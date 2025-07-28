@@ -41,10 +41,7 @@ export async function validatePasswordResetSessionToken(
 		return { session: null, user: null };
 	}
 
-	const session: PasswordResetSession = {
-		...row.password_reset_session,
-		emailVerified: row.user.emailVerified
-	};
+	const session: PasswordResetSession = row.password_reset_session;
 
 	if (Date.now() >= session.expiresAt.getTime()) {
 		await db

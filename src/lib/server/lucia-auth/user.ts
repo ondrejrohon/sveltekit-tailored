@@ -43,7 +43,7 @@ export async function setUserAsEmailVerifiedIfEmailMatches(
 		.update(tables.user)
 		.set({ emailVerified: true })
 		.where(and(eq(tables.user.id, userId), eq(tables.user.email, email)));
-	return result.length > 0;
+	return result.count > 0;
 }
 
 export async function getUserPasswordHash(userId: string): Promise<string> {

@@ -22,6 +22,7 @@
 					</label>
 					<input
 						id="code"
+						data-testid="verification-code"
 						class="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 						name="code"
 						type="text"

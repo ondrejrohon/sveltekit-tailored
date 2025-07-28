@@ -15,12 +15,12 @@ export async function resetPasswordVerificationLoadHandler(event: RequestEvent) 
 	if (session === null) {
 		return redirect(302, '/forgot-password');
 	}
-	if (session.emailVerified) {
-		// if (!session.twoFactorVerified) {
-		// 	return redirect(302, "/reset-password/2fa");
-		// }
-		return redirect(302, '/reset-password');
-	}
+	// if (session.emailVerified) {
+	// if (!session.twoFactorVerified) {
+	// 	return redirect(302, "/reset-password/2fa");
+	// }
+	// 	return redirect(302, '/reset-password');
+	// }
 	return {
 		email: session.email
 	};
@@ -69,12 +69,12 @@ async function action(event: RequestEvent) {
 		});
 	}
 	bucket.reset(session.userId);
-	setPasswordResetSessionAsEmailVerified(session.id);
-	const emailMatches = setUserAsEmailVerifiedIfEmailMatches(session.userId, session.email);
+	await setPasswordResetSessionAsEmailVerified(session.id);
+	const emailMatches = await setUserAsEmailVerifiedIfEmailMatches(session.userId, session.email);
 	if (!emailMatches) {
 		return fail(400, {
 			message: 'Please restart the process'
 		});
 	}
-	return redirect(302, '/reset-password/2fa');
+	return redirect(302, '/reset-password');
 }

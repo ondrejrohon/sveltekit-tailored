@@ -14,17 +14,24 @@ test.describe('auth test', () => {
 
 		const email = `testuser${Date.now()}@example.com`;
 
+		// TODO: always wait for hydrated
 		await page.goto('/');
+		// Wait for SvelteKit app to be fully loaded
+		await page.waitForSelector('body[data-sveltekit-hydrated]');
+
 		await expect(page.locator('nav a')).toHaveCount(3);
 
-		await page.getByRole('link', { name: 'Signup' }).click();
+		await page.getByTestId('signup').click();
 		await page.getByRole('textbox', { name: 'Email' }).click();
 		await page.getByRole('textbox', { name: 'Email' }).fill(email);
 		await page.getByRole('textbox', { name: 'Email' }).press('Tab');
 		await page.getByRole('textbox', { name: 'Password' }).fill('Nbusr123!@');
 		await page.getByRole('button', { name: 'Create account' }).click();
 
-		await page.getByRole('textbox', { name: 'Verification Code' }).click();
+		await Promise.all([
+			page.getByRole('textbox', { name: 'Verification Code' }).click(),
+			page.waitForURL('/verify-email')
+		]);
 
 		// get user from db
 		const [user] = await testDb.select().from(tables.user).where(eq(tables.user.email, email));
@@ -44,5 +51,55 @@ test.describe('auth test', () => {
 		const [user2] = await testDb.select().from(tables.user).where(eq(tables.user.email, email));
 
 		expect(user2.emailVerified).toBe(true);
+
+		// sign out and login back in
+		await page.getByTestId('signout').click();
+		await page.getByTestId('login').click();
+		await page.getByRole('textbox', { name: 'Email' }).fill(email);
+		await page.getByRole('textbox', { name: 'Password' }).fill('Nbusr123!@');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.waitForURL('/');
+		await expect(page.getByTestId('signout')).toBeVisible();
+
+		// test password reset
+		await page.getByTestId('signout').click();
+		await page.getByTestId('login').click();
+		await Promise.all([
+			page.getByRole('link', { name: 'Reset it here' }).click(),
+			page.waitForURL('/forgot-password')
+		]);
+		await page.getByRole('textbox', { name: 'Email' }).fill(email);
+		await Promise.all([
+			page.getByRole('button', { name: 'Send reset link' }).click(),
+			page.waitForURL('/reset-password/verify-email')
+		]);
+
+		// set verification code in db
+		await testDb
+			.update(tables.passwordResetSession)
+			.set({ code: '111111' })
+			.where(eq(tables.passwordResetSession.userId, user2.id));
+
+		await page.getByTestId('verification-code').fill('111111');
+		await Promise.all([
+			page.getByRole('button', { name: 'Verify Email' }).click(),
+			page.waitForURL('/reset-password')
+		]);
+		await expect(page.getByText('Reset your password')).toBeVisible();
+		await page.getByRole('textbox', { name: 'New Password' }).fill('newNbusr123!@');
+		await Promise.all([
+			page.getByRole('button', { name: 'Reset password' }).click(),
+			page.waitForURL('/')
+		]);
+		await expect(page.getByTestId('signout')).toBeVisible();
+
+		// test password reset
+		await page.getByTestId('signout').click();
+		await page.getByTestId('login').click();
+		await page.getByRole('textbox', { name: 'Email' }).fill(email);
+		await page.getByRole('textbox', { name: 'Password' }).fill('newNbusr123!@');
+		await page.getByRole('button', { name: 'Sign in' }).click();
+		await page.waitForURL('/');
+		await expect(page.getByTestId('signout')).toBeVisible();
 	});
 });
