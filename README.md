@@ -1,6 +1,8 @@
 # Sveltekit Repo
 
-all the nice stuff that I like to use for web dev
+all the nice stuff that I like to use for web dev:
+
+Sveltekit + Lucia Auth + Drizzle + Postgres + Tailwind + Shadcn + MailerSend
 
 ## Setup
 1. Clone this repo
@@ -23,6 +25,7 @@ all the nice stuff that I like to use for web dev
 
 ## Lucia Auth
 https://lucia-auth.com/
+
 https://github.com/lucia-auth/example-sveltekit-email-password-2fa/tree/main
 
 all lucia auth files are based on commit:
