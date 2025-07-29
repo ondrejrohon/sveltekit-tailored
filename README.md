@@ -2,7 +2,7 @@
 
 all the nice stuff that I like to use for web dev:
 
-Sveltekit + Lucia Auth + Drizzle + Postgres + Tailwind + Shadcn + MailerSend
+Sveltekit + Lucia Auth + Drizzle + Postgres + Tailwind + Shadcn + MailerSend + Vitest + Playwright
 
 ## Setup
 1. Clone this repo
