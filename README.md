@@ -9,8 +9,8 @@ all the nice stuff that I like to use for web dev
   JWT_SECRET by running: `openssl rand -base64 32`
   ENCRYPTION_KEY: `openssl rand -base64 16`
   DATABASE_URL: (based on your db)
-3. create project on GCP, allow google sign in
-4. create project on coolify (app + db)
+3. create project on GCP, setup google sign in
+4. create project on coolify, or other hosting (app + db)
 5. setup domain on cloudflare
 6. make sure that db port is not taken
 7. verify that it sends emails
