@@ -4,24 +4,13 @@ all the nice stuff that I like to use for web dev:
 
 Sveltekit + Lucia Auth + Drizzle + Postgres + Tailwind + Shadcn + MailerSend + Vitest + Playwright
 
-## Setup
-1. Clone this repo
-2. edit package.json project name
-3. generate envs:
-  JWT_SECRET by running: `openssl rand -base64 32`
-  ENCRYPTION_KEY: `openssl rand -base64 16`
-  DATABASE_URL: (based on your db)
-3. create project on GCP, setup google sign in
-4. create project on coolify, or other hosting (app + db)
-5. setup domain on cloudflare
-6. make sure that db port is not taken
-7. verify that it sends emails
+## How to use
+check out template repository:
+https://github.com/ondrejrohon/sveltekit-tailored-template
 
-## Connect to DB
-- setup SSH connection to server
-- find docker postgres container id: `docker ps`
-- find ip address of docker postgres container:  `docker inspect CONTAINER_ID | grep IPAddress`
-- use IP as host/socket
+## How to publish new version
+- after implementing changes, update version in package.json, tag it, push it and run `npm publish`
+- upgrade version in `sveltekit-tailored` in sveltekit-tailored-template and test it
 
 ## Lucia Auth
 https://lucia-auth.com/
