@@ -10,5 +10,10 @@ export const layoutLoadHandler = async (event: RequestEvent) => {
 		return redirect(302, '/verify-email');
 	}
 
-	return { user: event.locals.user };
+	return {
+		user: {
+			email: event.locals.user.email,
+			emailVerified: event.locals.user.emailVerified
+		}
+	};
 };
