@@ -21,10 +21,11 @@ export const authHandler: Handle = async ({ event, resolve }) => {
 		const token = authHeader.split(' ')[1];
 		try {
 			const { payload } = await jwtVerify(token, secret);
-			event.locals.user = await db
+			const user = await db
 				.select()
 				.from(tables.user)
 				.where(eq(tables.user.id, payload.userId as string));
+			event.locals.user = user[0];
 		} catch (error) {
 			// Token invalid/expired
 			event.locals.user = null;
