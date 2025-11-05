@@ -11,9 +11,6 @@ export const layoutLoadHandler = async (event: RequestEvent) => {
 	}
 
 	return {
-		user: {
-			email: event.locals.user.email,
-			emailVerified: event.locals.user.emailVerified
-		}
+		user: event.locals.user
 	};
 };
