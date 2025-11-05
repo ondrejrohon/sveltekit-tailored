@@ -10,54 +10,77 @@ import {
 	setSessionTokenCookie,
 	validateSessionToken
 } from '$lib/server/lucia-auth/session.js';
+import type { User } from '$lib/server/lucia-auth/user.js';
 
 const secret = new TextEncoder().encode(JWT_SECRET);
 
-export const authHandler: Handle = async ({ event, resolve }) => {
-	const authHeader = event.request.headers.get('authorization');
+/**
+ * Creates an authentication handler with support for custom user types.
+ *
+ * @template TUser - The user type (defaults to the base User type)
+ * @returns A SvelteKit handle function that validates sessions and sets event.locals
+ *
+ * @example
+ * // Current project - uses default User type
+ * export const authHandler = createAuthHandler();
+ *
+ * @example
+ * // Project with extended user type (e.g., with role field)
+ * interface ExtendedUser extends User {
+ *   role: 'admin' | 'user';
+ * }
+ * export const authHandler = createAuthHandler<ExtendedUser>();
+ */
+export function createAuthHandler<TUser = User>(): Handle {
+	return async ({ event, resolve }) => {
+		const authHeader = event.request.headers.get('authorization');
 
-	if (authHeader?.startsWith('Bearer ')) {
-		// Token auth for mobile
-		const token = authHeader.split(' ')[1];
-		try {
-			const { payload } = await jwtVerify(token, secret);
-			const user = await db
-				.select()
-				.from(tables.user)
-				.where(eq(tables.user.id, payload.userId as string));
-			event.locals.user = user[0];
-		} catch (error) {
-			// Token invalid/expired
-			event.locals.user = null;
+		if (authHeader?.startsWith('Bearer ')) {
+			// Token auth for mobile
+			const token = authHeader.split(' ')[1];
+			try {
+				const { payload } = await jwtVerify(token, secret);
+				const user = await db
+					.select()
+					.from(tables.user)
+					.where(eq(tables.user.id, payload.userId as string));
+				event.locals.user = user[0] as TUser;
+			} catch (error) {
+				// Token invalid/expired
+				event.locals.user = null;
 
-			const errorMessage = error instanceof errors.JWTExpired ? 'token_expired' : 'token_invalid';
+				const errorMessage = error instanceof errors.JWTExpired ? 'token_expired' : 'token_invalid';
 
-			return new Response(JSON.stringify({ message: errorMessage }), {
-				status: 401,
-				headers: {
-					'Content-Type': 'application/json'
-				}
-			});
-		}
-	} else {
-		// cookies auth for web
-		const sessionToken = event.cookies.get(sessionCookieName);
-		if (!sessionToken) {
-			event.locals.user = null;
-			event.locals.session = null;
-			return resolve(event);
-		}
-
-		const { session, user } = await validateSessionToken(sessionToken);
-		if (session) {
-			setSessionTokenCookie(event, sessionToken, session.expiresAt);
+				return new Response(JSON.stringify({ message: errorMessage }), {
+					status: 401,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				});
+			}
 		} else {
-			deleteSessionTokenCookie(event);
+			// cookies auth for web
+			const sessionToken = event.cookies.get(sessionCookieName);
+			if (!sessionToken) {
+				event.locals.user = null;
+				event.locals.session = null;
+				return resolve(event);
+			}
+
+			const { session, user } = await validateSessionToken<TUser>(sessionToken);
+			if (session) {
+				setSessionTokenCookie(event, sessionToken, session.expiresAt);
+			} else {
+				deleteSessionTokenCookie(event);
+			}
+
+			event.locals.user = user;
+			event.locals.session = session;
 		}
 
-		event.locals.user = user;
-		event.locals.session = session;
-	}
+		return resolve(event);
+	};
+}
 
-	return resolve(event);
-};
+// Default export for current project (backward compatible)
+export const authHandler = createAuthHandler();

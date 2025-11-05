@@ -1,5 +1,5 @@
 export { google } from './server/oauth.js';
-export { authHandler } from './server/handlers/auth-handler.js';
+export { authHandler, createAuthHandler } from './server/handlers/auth-handler.js';
 export {
 	verificationLoadHandler,
 	verificationActions
@@ -21,3 +21,7 @@ export { loginLoadHandler, loginActions } from './server/handlers/login-handler.
 export { forgotPasswordActions } from './server/handlers/forgot-password-handler.js';
 export { jwtLoginHandler, jwtRefreshHandler } from './server/handlers/token-auth-handler.js';
 export { sendEmail, sendTestEmail } from './server/email/send-email.js';
+
+// Export types for app.d.ts and other projects
+export type { SessionValidationResult, Session } from './server/lucia-auth/session.js';
+export type { User } from './server/lucia-auth/user.js';

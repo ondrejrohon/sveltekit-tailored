@@ -7,7 +7,9 @@ import { db } from '$lib/server/db/index.js';
 import * as tables from '$lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 
-export async function validateSessionToken(token: string): Promise<SessionValidationResult> {
+export async function validateSessionToken<TUser = User>(
+	token: string
+): Promise<SessionValidationResult<TUser>> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const [row] = await db
 		.select()
@@ -31,7 +33,7 @@ export async function validateSessionToken(token: string): Promise<SessionValida
 			.set({ expiresAt: session.expiresAt })
 			.where(eq(tables.session.id, session.id));
 	}
-	return { session, user };
+	return { session, user: user as TUser };
 }
 
 export async function invalidateSession(sessionId: string): Promise<void> {
@@ -97,4 +99,6 @@ export interface Session {
 	userId: string;
 }
 
-type SessionValidationResult = { session: Session; user: User } | { session: null; user: null };
+export type SessionValidationResult<TUser = User> =
+	| { session: Session; user: TUser }
+	| { session: null; user: null };
