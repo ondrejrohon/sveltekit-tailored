@@ -48,7 +48,11 @@ export function createAuthHandler<TUser = User>(
 					.select()
 					.from(userTable)
 					.where(eq(userTable.id, payload.userId as string));
-				event.locals.user = user[0] as TUser;
+
+				// never include passwordHash in the user object
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { passwordHash, ...restUser } = user[0];
+				event.locals.user = restUser as TUser;
 			} catch (error) {
 				// Token invalid/expired
 				event.locals.user = null;
