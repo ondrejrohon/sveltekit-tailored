@@ -6,16 +6,20 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db/index.js';
 import * as tables from '$lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 export async function validateSessionToken<TUser = User>(
-	token: string
+	token: string,
+	database: PostgresJsDatabase<Record<string, never>>,
+	sessionTable: typeof tables.session,
+	userTable: typeof tables.user
 ): Promise<SessionValidationResult<TUser>> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [row] = await db
+	const [row] = await database
 		.select()
-		.from(tables.session)
-		.innerJoin(tables.user, eq(tables.session.userId, tables.user.id))
-		.where(eq(tables.session.id, sessionId));
+		.from(sessionTable)
+		.innerJoin(userTable, eq(sessionTable.userId, userTable.id))
+		.where(eq(sessionTable.id, sessionId));
 
 	if (!row) {
 		return { session: null, user: null };
@@ -23,15 +27,15 @@ export async function validateSessionToken<TUser = User>(
 	const { session, user } = row;
 
 	if (Date.now() >= session.expiresAt.getTime()) {
-		await db.delete(tables.session).where(eq(tables.session.id, session.id));
+		await database.delete(sessionTable).where(eq(sessionTable.id, session.id));
 		return { session: null, user: null };
 	}
 	if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
 		session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-		await db
-			.update(tables.session)
+		await database
+			.update(sessionTable)
 			.set({ expiresAt: session.expiresAt })
-			.where(eq(tables.session.id, session.id));
+			.where(eq(sessionTable.id, session.id));
 	}
 	return { session, user: user as TUser };
 }
