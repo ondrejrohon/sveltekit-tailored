@@ -1,7 +1,6 @@
 import type { Handle } from '@sveltejs/kit';
 import { jwtVerify, errors } from 'jose';
 import { JWT_SECRET } from '$env/static/private';
-import { db } from '$lib/server/db/index.js';
 import * as tables from '$lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 import { sessionCookieName } from '$lib/server/constants.js';
@@ -11,6 +10,7 @@ import {
 	validateSessionToken
 } from '$lib/server/lucia-auth/session.js';
 import type { User } from '$lib/server/lucia-auth/user.js';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 
 const secret = new TextEncoder().encode(JWT_SECRET);
 
@@ -31,7 +31,9 @@ const secret = new TextEncoder().encode(JWT_SECRET);
  * }
  * export const authHandler = createAuthHandler<ExtendedUser>();
  */
-export function createAuthHandler<TUser = User>(): Handle {
+export function createAuthHandler<TUser = User>(
+	database: PostgresJsDatabase<Record<string, never>>
+): Handle {
 	return async ({ event, resolve }) => {
 		const authHeader = event.request.headers.get('authorization');
 
@@ -40,7 +42,7 @@ export function createAuthHandler<TUser = User>(): Handle {
 			const token = authHeader.split(' ')[1];
 			try {
 				const { payload } = await jwtVerify(token, secret);
-				const user = await db
+				const user = await database
 					.select()
 					.from(tables.user)
 					.where(eq(tables.user.id, payload.userId as string));
@@ -67,7 +69,7 @@ export function createAuthHandler<TUser = User>(): Handle {
 				return resolve(event);
 			}
 
-			const { session, user } = await validateSessionToken<TUser>(sessionToken);
+			const { session, user } = await validateSessionToken<TUser>(sessionToken, database);
 			if (session) {
 				setSessionTokenCookie(event, sessionToken, session.expiresAt);
 			} else {
@@ -81,6 +83,3 @@ export function createAuthHandler<TUser = User>(): Handle {
 		return resolve(event);
 	};
 }
-
-// Default export for current project (backward compatible)
-export const authHandler = createAuthHandler();
